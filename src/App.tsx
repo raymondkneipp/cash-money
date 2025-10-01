@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Expense, Income, InterestBearing } from "@/utils/types";
 import {
 	calculateDebtToIncomeRatio,
@@ -11,16 +11,10 @@ import { Incomes } from "@/components/incomes";
 import { Expenses } from "@/components/expenses";
 import { Debts } from "@/components/debts";
 import { Assets } from "@/components/assets";
-import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
-import { NumberInput } from "@/components/ui/number-input";
-import { Card, CardContent } from "./components/ui/card";
 import { Header } from "./components/header";
+import { initSettings } from "./db/settings";
 
 function App() {
-	const [age, setAge] = useState(20);
-	const [scenario, setScenario] = useState("Default");
-
 	const [incomes, setIncomes] = useState<Income[]>([
 		{
 			id: 1,
@@ -63,40 +57,17 @@ function App() {
 		},
 	]);
 
+	useEffect(() => {
+		initSettings().catch((err) => {
+			console.error("Failed to init settings", err);
+		});
+	}, []);
+
 	return (
 		<div className="flex flex-col gap-4">
 			<Header />
 
-			<Card className="mx-4">
-				<CardContent>
-					<div className="flex flex-col gap-1.5">
-						<Label htmlFor="scenario">Scenario</Label>
-						<Input
-							id="scenario"
-							type="text"
-							value={scenario}
-							onChange={(e) => setScenario(e.target.value)}
-						/>
-					</div>
-
-					<div className="flex flex-col gap-1.5">
-						<Label htmlFor="age">Age</Label>
-						<NumberInput
-							id="age"
-							min={1}
-							max={100}
-							inputMode="numeric"
-							value={age}
-							onValueChange={(value) =>
-								setAge((prev) => (value ? value : prev))
-							}
-							placeholder="Age"
-						/>
-					</div>
-				</CardContent>
-			</Card>
-
-			<div className="bg-grey-200 grid grid-cols-4 mx-4">
+			<div className="bg-grey-200 grid grid-cols-4 gap-4 mx-4">
 				<p>
 					Total Annual Income: {formatCurrency(calculateTotalAnnual(incomes))}
 				</p>

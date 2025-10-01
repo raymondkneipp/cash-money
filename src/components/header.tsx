@@ -1,5 +1,13 @@
 import { useState } from "react";
-import { BanknoteIcon, EllipsisVerticalIcon } from "lucide-react";
+import {
+	BanknoteIcon,
+	CopyIcon,
+	DatabaseIcon,
+	EllipsisVerticalIcon,
+	PencilIcon,
+	PlusIcon,
+	TrashIcon,
+} from "lucide-react";
 import { Check, ChevronsUpDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -21,133 +29,187 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
-	DropdownMenuLabel,
-	DropdownMenuPortal,
 	DropdownMenuSeparator,
-	DropdownMenuShortcut,
-	DropdownMenuSub,
-	DropdownMenuSubContent,
-	DropdownMenuSubTrigger,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/db";
+import { InspectDBSheet } from "./inspect-db-sheet";
+import { CreateScenarioModal } from "./create-scenario-modal";
+import { EditScenarioModal } from "./edit-scenario-modal";
+import { DeleteScenarioAlert } from "./delete-scenario-alert";
+
+export function useScenarioManager() {
+	// Watch settings row
+	const settings = useLiveQuery(() => db.settings.get(1), []);
+
+	// Watch all scenarios
+	const scenarios = useLiveQuery(() => db.scenarios.toArray());
+
+	// Watch current scenario row based on settings
+	const currentScenario = useLiveQuery(async () => {
+		if (!settings?.currentScenarioId) return undefined;
+		return await db.scenarios.get(settings.currentScenarioId);
+	}, [settings?.currentScenarioId]);
+
+	async function deleteCurrentScenario() {
+		if (!settings?.currentScenarioId || !scenarios) return;
+
+		// Prevent deletion if it's the only scenario
+		if (scenarios.length <= 1) {
+			throw new Error("Cannot delete the last scenario.");
+		}
+
+		// Delete current scenario
+		await db.scenarios.delete(settings.currentScenarioId);
+
+		// Pick the next available scenario
+		const nextScenario = scenarios.find(
+			(s) => s.id !== settings.currentScenarioId,
+		);
+		if (nextScenario) {
+			await db.settings.update(1, { currentScenarioId: nextScenario.id });
+		}
+	}
+
+	return {
+		scenarios,
+		settings,
+		currentScenario,
+		deleteCurrentScenario,
+	};
+}
 
 export function Header() {
-	const scenarios = [
-		{
-			value: "1",
-			label: "Default",
-		},
-		{
-			value: "2",
-			label: "Future",
-		},
-		{
-			value: "3",
-			label: "Nice Job",
-		},
-	];
+	const { currentScenario, deleteCurrentScenario, scenarios } =
+		useScenarioManager();
 
 	const [open, setOpen] = useState(false);
-	const [value, setValue] = useState("1");
+
+	const [inspectDB, setInspectDB] = useState(false);
+	const [showNewScenario, setShowNewScenario] = useState(false);
+	const [showEditScenario, setShowEditScenario] = useState(false);
+	const [showDeleteScenario, setShowDeleteScenario] = useState(false);
+
+	const handleScenarioSelect = async (scenarioId: string) => {
+		setOpen(false);
+
+		await db.settings.put({
+			id: 1,
+			currentScenarioId: parseInt(scenarioId),
+		});
+	};
 
 	return (
-		<header className="border-b p-4 flex items-center justify-between">
-			<h1 className="text-lg font-bold flex items-center gap-2">
-				<BanknoteIcon /> Cash Money
-			</h1>
+		<>
+			<header className="border-b p-4 flex items-center justify-between">
+				<h1 className="text-lg font-bold flex items-center gap-2">
+					<BanknoteIcon className="text-primary" /> Cash Money
+				</h1>
 
-			<div className="flex items-center gap-2">
-				<Popover open={open} onOpenChange={setOpen}>
-					<PopoverTrigger asChild>
-						<Button
-							variant="outline"
-							role="combobox"
-							aria-expanded={open}
-							className="w-[200px] justify-between"
-						>
-							{value
-								? scenarios.find((framework) => framework.value === value)
-										?.label
-								: "Select scenario..."}
-							<ChevronsUpDown className="opacity-50" />
-						</Button>
-					</PopoverTrigger>
-					<PopoverContent className="w-[200px] p-0">
-						<Command>
-							<CommandInput placeholder="Search scenarios..." className="h-9" />
-							<CommandList>
-								<CommandEmpty>No scenario found.</CommandEmpty>
-								<CommandGroup>
-									{scenarios.map((framework) => (
-										<CommandItem
-											key={framework.value}
-											value={framework.value}
-											onSelect={(currentValue) => {
-												setValue(currentValue === value ? "" : currentValue);
-												setOpen(false);
-											}}
-										>
-											{framework.label}
-											<Check
-												className={cn(
-													"ml-auto",
-													value === framework.value
-														? "opacity-100"
-														: "opacity-0",
-												)}
-											/>
-										</CommandItem>
-									))}
-								</CommandGroup>
-							</CommandList>
-						</Command>
-					</PopoverContent>
-				</Popover>
+				<div className="flex items-center gap-2">
+					<Popover open={open} onOpenChange={setOpen}>
+						<PopoverTrigger asChild>
+							<Button
+								variant="outline"
+								role="combobox"
+								aria-expanded={open}
+								className="w-[200px] justify-between"
+							>
+								{currentScenario ? currentScenario.name : "Select scenario"}
 
-				<DropdownMenu>
-					<DropdownMenuTrigger asChild>
-						<Button size="icon" variant="outline">
-							<EllipsisVerticalIcon />
-						</Button>
-					</DropdownMenuTrigger>
-					<DropdownMenuContent className="w-56" align="start">
-						<DropdownMenuLabel>My Scenarios</DropdownMenuLabel>
-						<DropdownMenuGroup>
-							<DropdownMenuItem>New Scenario</DropdownMenuItem>
-							<DropdownMenuItem>Duplicate Scenario</DropdownMenuItem>
-							<DropdownMenuItem>Delete Scenario</DropdownMenuItem>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
-						<DropdownMenuGroup>
-							<DropdownMenuItem>Team</DropdownMenuItem>
-							<DropdownMenuSub>
-								<DropdownMenuSubTrigger>Invite users</DropdownMenuSubTrigger>
-								<DropdownMenuPortal>
-									<DropdownMenuSubContent>
-										<DropdownMenuItem>Email</DropdownMenuItem>
-										<DropdownMenuItem>Message</DropdownMenuItem>
-										<DropdownMenuSeparator />
-										<DropdownMenuItem>More...</DropdownMenuItem>
-									</DropdownMenuSubContent>
-								</DropdownMenuPortal>
-							</DropdownMenuSub>
-							<DropdownMenuItem>
-								New Team
-								<DropdownMenuShortcut>⌘+T</DropdownMenuShortcut>
-							</DropdownMenuItem>
-						</DropdownMenuGroup>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>GitHub</DropdownMenuItem>
-						<DropdownMenuItem>Support</DropdownMenuItem>
-						<DropdownMenuItem disabled>API</DropdownMenuItem>
-						<DropdownMenuSeparator />
-						<DropdownMenuItem>
-							Log out
-							<DropdownMenuShortcut>⇧⌘Q</DropdownMenuShortcut>
-						</DropdownMenuItem>
-					</DropdownMenuContent>
-				</DropdownMenu>
-			</div>
-		</header>
+								<ChevronsUpDown className="opacity-50" />
+							</Button>
+						</PopoverTrigger>
+						<PopoverContent className="w-[200px] p-0">
+							<Command>
+								<CommandInput placeholder="Search scenarios..." />
+								<CommandList>
+									<CommandEmpty>No scenario found.</CommandEmpty>
+									<CommandGroup>
+										{scenarios?.map((s) => (
+											<CommandItem
+												key={s.id}
+												value={s.id.toString()}
+												onSelect={handleScenarioSelect}
+											>
+												{s.name}
+												<Check
+													className={cn(
+														"ml-auto",
+														currentScenario?.id === s.id
+															? "opacity-100"
+															: "opacity-0",
+													)}
+												/>
+											</CommandItem>
+										))}
+									</CommandGroup>
+								</CommandList>
+							</Command>
+						</PopoverContent>
+					</Popover>
+
+					<DropdownMenu>
+						<DropdownMenuTrigger asChild>
+							<Button size="icon" variant="outline">
+								<EllipsisVerticalIcon />
+							</Button>
+						</DropdownMenuTrigger>
+						<DropdownMenuContent className="w-56" align="end">
+							<DropdownMenuGroup>
+								<DropdownMenuItem onClick={(_) => setShowNewScenario(true)}>
+									<PlusIcon />
+									New Scenario
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={(_) => alert("todo")}>
+									<CopyIcon />
+									Duplicate Scenario
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={(_) => setShowEditScenario(true)}>
+									<PencilIcon />
+									Edit Scenario
+								</DropdownMenuItem>
+								<DropdownMenuItem onClick={(_) => setShowDeleteScenario(true)}>
+									<TrashIcon />
+									Delete Scenario
+								</DropdownMenuItem>
+							</DropdownMenuGroup>
+
+							<DropdownMenuSeparator />
+
+							<DropdownMenuGroup>
+								<DropdownMenuItem onClick={() => setInspectDB(true)}>
+									<DatabaseIcon />
+									Inspect Database
+								</DropdownMenuItem>
+							</DropdownMenuGroup>
+						</DropdownMenuContent>
+					</DropdownMenu>
+				</div>
+			</header>
+
+			<InspectDBSheet isOpen={inspectDB} setIsOpen={setInspectDB} />
+
+			<CreateScenarioModal
+				isOpen={showNewScenario}
+				setIsOpen={setShowNewScenario}
+			/>
+
+			<pre>{JSON.stringify(currentScenario, null, 2)}</pre>
+
+			{currentScenario && (
+				<EditScenarioModal
+					data={currentScenario}
+					open={showEditScenario}
+					onOpenChange={setShowEditScenario}
+				/>
+			)}
+
+			<DeleteScenarioAlert
+				open={showDeleteScenario}
+				onOpenChange={setShowDeleteScenario}
+			/>
+		</>
 	);
 }
