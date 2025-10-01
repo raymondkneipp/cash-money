@@ -88,84 +88,82 @@ export function Incomes() {
 					className="flex flex-col gap-4 pb-6"
 					key={`income-${i.id}`}
 				>
-					<div className="flex flex-col gap-2">
-						<div className="flex items-end gap-2">
-							<div className="flex flex-col gap-1.5 flex-grow">
-								<Label htmlFor={`income-name-${i.id}`}>Name</Label>
-								<Input
-									id={`income-name-${i.id}`}
-									type="text"
-									inputMode="text"
-									value={i.name}
-									onChange={(e) => edit({ id: i.id, name: e.target.value })}
-								/>
-							</div>
-
-							<Button
-								size="icon"
-								variant="destructive"
-								onClick={(_) => drop(i.id)}
-							>
-								<TrashIcon />
-							</Button>
+					<div className="flex items-end gap-2">
+						<div className="flex flex-col gap-1.5 flex-grow">
+							<Label htmlFor={`income-name-${i.id}`}>Name</Label>
+							<Input
+								id={`income-name-${i.id}`}
+								type="text"
+								inputMode="text"
+								value={i.name}
+								onChange={(e) => edit({ id: i.id, name: e.target.value })}
+							/>
 						</div>
 
-						<div className="grid grid-cols-2 gap-2">
-							<div className="flex flex-col gap-1.5">
-								<Label htmlFor={`income-amount-${i.id}`}>Amount</Label>
-								<NumberInput
-									id={`income-amount-${i.id}`}
-									decimalScale={2}
-									prefix="$"
-									inputMode="numeric"
-									thousandSeparator={","}
-									value={i.amount}
-									min={1}
-									max={500_000}
-									onValueChange={(value) =>
-										edit({ id: i.id, amount: value ?? 0 })
-									}
-									stepper={
-										i.frequency === "annually"
-											? 5000
-											: i.frequency === "semiannually"
-												? 1000
-												: i.frequency === "quarterly"
-													? 500
-													: i.frequency === "monthly"
-														? 100
-														: i.frequency === "biweekly"
-															? 100
-															: i.frequency === "weekly"
-																? 50
-																: 10
-									}
-								/>
-							</div>
+						<Button
+							size="icon"
+							variant="destructive"
+							onClick={(_) => drop(i.id)}
+						>
+							<TrashIcon />
+						</Button>
+					</div>
 
-							<div className="flex flex-col gap-1.5">
-								<Label htmlFor={`income-frequency-${i.id}`}>Frequency</Label>
-								<Select
-									value={i.frequency}
-									onValueChange={(value) =>
-										edit({ id: i.id, frequency: value as Frequency })
-									}
+					<div className="grid grid-cols-2 gap-2">
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor={`income-amount-${i.id}`}>Amount</Label>
+							<NumberInput
+								id={`income-amount-${i.id}`}
+								decimalScale={2}
+								prefix="$"
+								inputMode="numeric"
+								thousandSeparator={","}
+								value={i.amount}
+								min={1}
+								max={500_000}
+								onValueChange={(value) =>
+									edit({ id: i.id, amount: value ?? 0 })
+								}
+								stepper={
+									i.frequency === "annually"
+										? 5000
+										: i.frequency === "semiannually"
+											? 1000
+											: i.frequency === "quarterly"
+												? 500
+												: i.frequency === "monthly"
+													? 100
+													: i.frequency === "biweekly"
+														? 100
+														: i.frequency === "weekly"
+															? 50
+															: 10
+								}
+							/>
+						</div>
+
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor={`income-frequency-${i.id}`}>Frequency</Label>
+							<Select
+								value={i.frequency}
+								onValueChange={(value) =>
+									edit({ id: i.id, frequency: value as Frequency })
+								}
+							>
+								<SelectTrigger
+									id={`income-frequency-${i.id}`}
+									className="w-full"
 								>
-									<SelectTrigger
-										id={`income-frequency-${i.id}`}
-										className="w-full"
-									>
-										<SelectValue placeholder="Frequency" />
-									</SelectTrigger>
-									<SelectContent>
-										{frequencyOptions.map((freq) => (
-											<SelectItem value={freq} key={freq}>
-												{freq}
-											</SelectItem>
-										))}
-									</SelectContent>
-								</Select>
-							</div>
+									<SelectValue placeholder="Frequency" />
+								</SelectTrigger>
+								<SelectContent>
+									{frequencyOptions.map((freq) => (
+										<SelectItem value={freq} key={freq}>
+											{freq}
+										</SelectItem>
+									))}
+								</SelectContent>
+							</Select>
 						</div>
 					</div>
 				</CardContent>

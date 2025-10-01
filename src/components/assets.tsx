@@ -1,6 +1,5 @@
-import { frequencyOptions } from "../utils/constants";
-import { addArrayObject, deleteById, updateById } from "../utils/fn";
-import type { InterestBearing } from "../utils/types";
+import { freqToPeriods, frequencyOptions } from "../utils/constants";
+import type { Frequency } from "../utils/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
@@ -21,14 +20,58 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useScenarioManager } from "./header";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db, type Asset } from "@/db";
 
-export function Assets({
-	assets,
-	setAssets,
-}: {
-	assets: InterestBearing[];
-	setAssets: React.Dispatch<React.SetStateAction<InterestBearing[]>>;
-}) {
+export function useAssets() {
+	const { currentScenario } = useScenarioManager();
+
+	const assets = useLiveQuery(async () => {
+		if (!currentScenario?.id) return [];
+		return await db.assets.where({ scenarioId: currentScenario.id }).toArray();
+	}, [currentScenario?.id]);
+
+	async function add() {
+		if (!currentScenario) {
+			throw Error("No scenarioId");
+		}
+
+		await db.assets.add({
+			scenarioId: currentScenario.id,
+			name: "New Asset",
+			value: 1_000,
+			growthRate: 8,
+			contribution: 100,
+			frequency: "monthly",
+		});
+	}
+
+	async function drop(id: number) {
+		await db.assets.delete(id);
+	}
+
+	async function edit(
+		i: { id: number } & Partial<Omit<Asset, "id" | "scenarioId">>,
+	) {
+		const { id, ...rest } = i;
+		await db.assets.update(id, rest);
+	}
+
+	const totalAssets = assets?.reduce((sum, a) => sum + a.value, 0) ?? 0;
+
+	const totalAnnualContributions =
+		assets?.reduce(
+			(sum, a) => sum + a.contribution * (freqToPeriods[a.frequency] ?? 0),
+			0,
+		) ?? 0;
+
+	return { assets, add, drop, edit, totalAnnualContributions, totalAssets };
+}
+
+export function Assets() {
+	const { assets, add, drop, edit } = useAssets();
+
 	return (
 		<Card className="divide-y">
 			<CardHeader className="pb-4">
@@ -38,7 +81,14 @@ export function Assets({
 					property.
 				</CardDescription>
 			</CardHeader>
-			{assets.map((i) => (
+
+			{!assets?.length && (
+				<CardContent className="pb-6">
+					<p className="text-center text-muted-foreground">No assets</p>
+				</CardContent>
+			)}
+
+			{assets?.map((i) => (
 				<CardContent className="flex flex-col gap-4 pb-6" key={`asset-${i.id}`}>
 					<div className="flex items-end gap-2">
 						<div className="flex flex-col gap-1.5 flex-grow">
@@ -48,39 +98,35 @@ export function Assets({
 								type="text"
 								inputMode="text"
 								value={i.name}
-								onChange={(e) =>
-									updateById(setAssets, i.id, "name", e.target.value)
-								}
+								onChange={(e) => edit({ id: i.id, name: e.target.value })}
 							/>
 						</div>
 
 						<Button
 							size="icon"
 							variant="destructive"
-							onClick={(_) => deleteById(setAssets, i.id)}
+							onClick={(_) => drop(i.id)}
 						>
 							<TrashIcon />
 						</Button>
 					</div>
 
-					<div className="flex flex-col gap-1.5">
-						<Label htmlFor={`asset-principal-${i.id}`}>Principal</Label>
-						<NumberInput
-							id={`asset-principal-${i.id}`}
-							inputMode="numeric"
-							decimalScale={2}
-							thousandSeparator=","
-							min={0}
-							max={5_000_000}
-							prefix="$"
-							value={i.principal}
-							onValueChange={(value) =>
-								updateById(setAssets, i.id, "principal", Number(value))
-							}
-						/>
-					</div>
-
 					<div className="grid grid-cols-2 gap-2">
+						<div className="flex flex-col gap-1.5">
+							<Label htmlFor={`asset-value-${i.id}`}>Value</Label>
+							<NumberInput
+								id={`asset-value-${i.id}`}
+								inputMode="numeric"
+								decimalScale={2}
+								thousandSeparator=","
+								min={0}
+								max={5_000_000}
+								prefix="$"
+								value={i.value}
+								onValueChange={(value) => edit({ id: i.id, value: value })}
+							/>
+						</div>
+
 						<div className="flex flex-col gap-1.5">
 							<Label htmlFor={`asset-rate-${i.id}`}>Rate</Label>
 							<NumberInput
@@ -90,33 +136,11 @@ export function Assets({
 								min={0}
 								max={100}
 								suffix="%"
-								value={i.rate * 100}
+								value={i.growthRate}
 								onValueChange={(value) =>
-									updateById(setAssets, i.id, "rate", Number(value ?? 0) / 100)
+									edit({ id: i.id, growthRate: value ?? 0 })
 								}
 							/>
-						</div>
-
-						<div className="flex flex-col gap-1.5">
-							<Label htmlFor={`asset-compound-${i.id}`}>Compound</Label>
-
-							<Select
-								value={i.compound}
-								onValueChange={(value) =>
-									updateById(setAssets, i.id, "compound", value)
-								}
-							>
-								<SelectTrigger id={`asset-compound-${i.id}`} className="w-full">
-									<SelectValue placeholder="Compound" />
-								</SelectTrigger>
-								<SelectContent>
-									{frequencyOptions.map((freq) => (
-										<SelectItem value={freq} key={freq}>
-											{freq}
-										</SelectItem>
-									))}
-								</SelectContent>
-							</Select>
 						</div>
 					</div>
 
@@ -133,12 +157,7 @@ export function Assets({
 								prefix="$"
 								value={i.contribution}
 								onValueChange={(value) =>
-									updateById(
-										setAssets,
-										i.id,
-										"contribution",
-										Number(value ?? 0),
-									)
+									edit({ id: i.id, contribution: value ?? 0 })
 								}
 							/>
 						</div>
@@ -149,9 +168,9 @@ export function Assets({
 							</Label>
 
 							<Select
-								value={i.contributionFrequency}
+								value={i.frequency}
 								onValueChange={(value) =>
-									updateById(setAssets, i.id, "contributionFrequency", value)
+									edit({ id: i.id, frequency: value as Frequency })
 								}
 							>
 								<SelectTrigger
@@ -174,19 +193,7 @@ export function Assets({
 			))}
 
 			<CardFooter className="flex-col gap-2">
-				<Button
-					className="w-full"
-					onClick={(_) =>
-						addArrayObject(setAssets, {
-							name: "New Asset",
-							principal: 1_000,
-							rate: 0.02,
-							compound: "monthly",
-							contribution: 100,
-							contributionFrequency: "monthly",
-						})
-					}
-				>
+				<Button className="w-full" onClick={(_) => add()}>
 					<PlusIcon />
 					Add Asset
 				</Button>

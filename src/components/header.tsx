@@ -34,7 +34,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useLiveQuery } from "dexie-react-hooks";
 import { db } from "@/db";
-import { InspectDBSheet } from "./inspect-db-sheet";
+import { InspectDataSheet } from "./inspect-data-sheet";
 import { CreateScenarioModal } from "./create-scenario-modal";
 import { EditScenarioModal } from "./edit-scenario-modal";
 import { DeleteScenarioAlert } from "./delete-scenario-alert";
@@ -101,7 +101,7 @@ export function Header() {
 
 	return (
 		<>
-			<header className="border-b p-4 flex items-center justify-between">
+			<header className="border-b p-4 flex items-center justify-between flex-col gap-2 sm:flex-row">
 				<h1 className="text-lg font-bold flex items-center gap-2">
 					<BanknoteIcon className="text-primary size-8" /> Cash Money
 				</h1>
@@ -180,7 +180,7 @@ export function Header() {
 							<DropdownMenuGroup>
 								<DropdownMenuItem onClick={() => setInspectDB(true)}>
 									<DatabaseIcon />
-									Inspect Database
+									Inspect Data
 								</DropdownMenuItem>
 							</DropdownMenuGroup>
 						</DropdownMenuContent>
@@ -188,7 +188,7 @@ export function Header() {
 				</div>
 			</header>
 
-			<InspectDBSheet isOpen={inspectDB} setIsOpen={setInspectDB} />
+			<InspectDataSheet isOpen={inspectDB} setIsOpen={setInspectDB} />
 
 			<CreateScenarioModal
 				isOpen={showNewScenario}
