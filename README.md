@@ -1,6 +1,10 @@
 # Cash Money
 
+## Future Todos
+
 - export and import
+- crypto assets and get current price from api
+- stock assets and get current price from api
 
 
 
