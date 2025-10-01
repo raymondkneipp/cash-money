@@ -163,7 +163,9 @@ export function Header() {
 									<PlusIcon />
 									New Scenario
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={(_) => setShowDuplicateScenario(true)}>
+								<DropdownMenuItem
+									onClick={(_) => setShowDuplicateScenario(true)}
+								>
 									<CopyIcon />
 									Duplicate Scenario
 								</DropdownMenuItem>

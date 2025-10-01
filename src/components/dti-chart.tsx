@@ -16,14 +16,16 @@ import {
 } from "@/components/ui/chart";
 import { TooltipPopover } from "./ui/tooltip-popover";
 import { TriangleAlert } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export const description = "A radial chart showing debt-to-income ratio";
 
 interface DTIChartProps {
 	dtiRatio: number;
+	className?: string;
 }
 
-export function DTIChart({ dtiRatio }: DTIChartProps) {
+export function DTIChart({ dtiRatio, className }: DTIChartProps) {
 	// Create chart data where the filled portion represents the DTI ratio
 	// and the remaining portion represents the available income ratio
 	const chartData = [
@@ -45,7 +47,7 @@ export function DTIChart({ dtiRatio }: DTIChartProps) {
 	} satisfies ChartConfig;
 
 	return (
-		<Card className="flex flex-col">
+		<Card className={cn("flex flex-col", className)}>
 			<CardHeader className="items-center pb-0">
 				<CardTitle>Debt-to-Income</CardTitle>
 				<CardDescription>Monthly debt payments vs income</CardDescription>
