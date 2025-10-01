@@ -38,6 +38,7 @@ import { InspectDataSheet } from "./inspect-data-sheet";
 import { CreateScenarioModal } from "./create-scenario-modal";
 import { EditScenarioModal } from "./edit-scenario-modal";
 import { DeleteScenarioAlert } from "./delete-scenario-alert";
+import { DuplicateScenarioModal } from "./duplicate-scenario-modal";
 
 export function useScenarioManager() {
 	// Watch settings row
@@ -89,6 +90,7 @@ export function Header() {
 	const [showNewScenario, setShowNewScenario] = useState(false);
 	const [showEditScenario, setShowEditScenario] = useState(false);
 	const [showDeleteScenario, setShowDeleteScenario] = useState(false);
+	const [showDuplicateScenario, setShowDuplicateScenario] = useState(false);
 
 	const handleScenarioSelect = async (scenarioId: string) => {
 		setOpen(false);
@@ -161,7 +163,7 @@ export function Header() {
 									<PlusIcon />
 									New Scenario
 								</DropdownMenuItem>
-								<DropdownMenuItem onClick={(_) => alert("todo")}>
+								<DropdownMenuItem onClick={(_) => setShowDuplicateScenario(true)}>
 									<CopyIcon />
 									Duplicate Scenario
 								</DropdownMenuItem>
@@ -206,6 +208,12 @@ export function Header() {
 			<DeleteScenarioAlert
 				open={showDeleteScenario}
 				onOpenChange={setShowDeleteScenario}
+			/>
+
+			<DuplicateScenarioModal
+				isOpen={showDuplicateScenario}
+				setIsOpen={setShowDuplicateScenario}
+				scenarioToDuplicate={currentScenario || null}
 			/>
 		</>
 	);

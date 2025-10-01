@@ -134,7 +134,7 @@ function App() {
 				/>
 
 				<Stat
-					title="Net Cash Flow"
+					title="Annual Net Cash Flow"
 					icon={RefreshCwIcon}
 					value={formatCurrency(
 						totalAnnualIncome -

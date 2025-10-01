@@ -150,7 +150,7 @@ export function Assets() {
 							<NumberInput
 								id={`asset-contribution-${i.id}`}
 								inputMode="numeric"
-								min={1}
+								min={0}
 								max={500_000}
 								decimalScale={2}
 								thousandSeparator=","
