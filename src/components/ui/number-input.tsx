@@ -44,8 +44,10 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 		const [value, setValue] = useState<number | undefined>(
 			controlledValue ?? defaultValue,
 		);
+		const [isUserInput, setIsUserInput] = useState(false);
 
 		const handleIncrement = useCallback(() => {
+			setIsUserInput(true);
 			setValue((prev) =>
 				prev === undefined
 					? (stepper ?? 1)
@@ -54,6 +56,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 		}, [stepper, max]);
 
 		const handleDecrement = useCallback(() => {
+			setIsUserInput(true);
 			setValue((prev) =>
 				prev === undefined
 					? -(stepper ?? 1)
@@ -84,6 +87,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 		useEffect(() => {
 			if (controlledValue !== undefined) {
 				setValue(controlledValue);
+				setIsUserInput(false);
 			}
 		}, [controlledValue]);
 
@@ -91,8 +95,10 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 			value: string;
 			floatValue: number | undefined;
 		}) => {
-			const newValue =
-				values.floatValue === undefined ? undefined : values.floatValue;
+			setIsUserInput(true);
+			// If the string value is completely empty, pass undefined
+			// If it has content but floatValue is undefined (like just a decimal point), pass 0
+			const newValue = values.value === "" ? undefined : (values.floatValue ?? 0);
 			setValue(newValue);
 			if (onValueChange) {
 				onValueChange(newValue);
@@ -103,12 +109,16 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 			if (value !== undefined) {
 				if (value < min) {
 					setValue(min);
-					(ref as React.RefObject<HTMLInputElement>).current!.value =
-						String(min);
+					const inputRef = (combinedRef as React.RefObject<HTMLInputElement>).current;
+					if (inputRef) {
+						inputRef.value = String(min);
+					}
 				} else if (value > max) {
 					setValue(max);
-					(ref as React.RefObject<HTMLInputElement>).current!.value =
-						String(max);
+					const inputRef = (combinedRef as React.RefObject<HTMLInputElement>).current;
+					if (inputRef) {
+						inputRef.value = String(max);
+					}
 				}
 			}
 		};
@@ -116,7 +126,7 @@ export const NumberInput = forwardRef<HTMLInputElement, NumberInputProps>(
 		return (
 			<div className="flex items-center">
 				<NumericFormat
-					value={value}
+					value={value === 0 && !isUserInput ? "" : value}
 					onValueChange={handleChange}
 					thousandSeparator={thousandSeparator}
 					decimalScale={decimalScale}

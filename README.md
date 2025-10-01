@@ -1,10 +1,6 @@
 # Cash Money
 
-- Income
-- Expenses
-- Debt
-- Assets
-
+- export and import
 
 
 
