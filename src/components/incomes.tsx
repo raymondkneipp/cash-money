@@ -1,6 +1,5 @@
-import { frequencyOptions } from "../utils/constants";
-import { addArrayObject, deleteById, updateById } from "../utils/fn";
-import type { Income } from "../utils/types";
+import { freqToPeriods, frequencyOptions } from "../utils/constants";
+import type { Frequency, Income } from "../utils/types";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -21,14 +20,54 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
+import { useLiveQuery } from "dexie-react-hooks";
+import { db } from "@/db";
+import { useScenarioManager } from "./header";
 
-export function Incomes({
-	incomes,
-	setIncomes,
-}: {
-	incomes: Income[];
-	setIncomes: React.Dispatch<React.SetStateAction<Income[]>>;
-}) {
+export function useIncomes() {
+	const { currentScenario } = useScenarioManager();
+
+	const incomes = useLiveQuery(async () => {
+		if (!currentScenario?.id) return [];
+		return await db.incomes.where({ scenarioId: currentScenario.id }).toArray();
+	}, [currentScenario?.id]);
+
+	async function add() {
+		if (!currentScenario) {
+			throw Error("No scenarioId");
+		}
+
+		await db.incomes.add({
+			name: "New income",
+			amount: 1_000,
+			frequency: "monthly",
+			scenarioId: currentScenario.id,
+		});
+	}
+
+	async function drop(id: number) {
+		await db.incomes.delete(id);
+	}
+
+	async function edit(
+		i: { id: number } & Partial<Omit<Income, "id" | "scenarioId">>,
+	) {
+		const { id, ...rest } = i;
+		await db.incomes.update(id, rest);
+	}
+
+	const totalAnnualIncome =
+		incomes?.reduce((sum, income) => {
+			const periods = freqToPeriods[income.frequency] ?? 1;
+			return sum + income.amount * periods;
+		}, 0) ?? 0;
+
+	return { incomes, add, drop, edit, totalAnnualIncome };
+}
+
+export function Incomes() {
+	const { incomes, add, drop, edit } = useIncomes();
+
 	return (
 		<Card className="divide-y">
 			<CardHeader className="pb-4">
@@ -37,7 +76,14 @@ export function Incomes({
 					Money you earn from work, investments, or other sources.
 				</CardDescription>
 			</CardHeader>
-			{incomes.map((i) => (
+
+			{!incomes?.length && (
+				<CardContent className="pb-6">
+					<p className="text-center text-muted-foreground">No incomes</p>
+				</CardContent>
+			)}
+
+			{incomes?.map((i) => (
 				<CardContent
 					className="flex flex-col gap-4 pb-6"
 					key={`income-${i.id}`}
@@ -51,16 +97,14 @@ export function Incomes({
 									type="text"
 									inputMode="text"
 									value={i.name}
-									onChange={(e) =>
-										updateById(setIncomes, i.id, "name", e.target.value)
-									}
+									onChange={(e) => edit({ id: i.id, name: e.target.value })}
 								/>
 							</div>
 
 							<Button
 								size="icon"
 								variant="destructive"
-								onClick={(_) => deleteById(setIncomes, i.id)}
+								onClick={(_) => drop(i.id)}
 							>
 								<TrashIcon />
 							</Button>
@@ -79,7 +123,7 @@ export function Incomes({
 									min={1}
 									max={500_000}
 									onValueChange={(value) =>
-										updateById(setIncomes, i.id, "amount", Number(value ?? 0))
+										edit({ id: i.id, amount: value ?? 0 })
 									}
 									stepper={
 										i.frequency === "annually"
@@ -104,7 +148,7 @@ export function Incomes({
 								<Select
 									value={i.frequency}
 									onValueChange={(value) =>
-										updateById(setIncomes, i.id, "frequency", value)
+										edit({ id: i.id, frequency: value as Frequency })
 									}
 								>
 									<SelectTrigger
@@ -126,17 +170,9 @@ export function Incomes({
 					</div>
 				</CardContent>
 			))}
+
 			<CardFooter className="flex-col gap-2">
-				<Button
-					className="w-full"
-					onClick={(_) =>
-						addArrayObject(setIncomes, {
-							name: "New Income",
-							amount: 1_000,
-							frequency: "monthly",
-						})
-					}
-				>
+				<Button className="w-full" onClick={(_) => add()}>
 					<PlusIcon />
 					Add Income
 				</Button>

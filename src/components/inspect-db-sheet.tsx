@@ -11,6 +11,7 @@ import {
 import { Button } from "./ui/button";
 import { TrashIcon } from "lucide-react";
 import { useScenarioManager } from "./header";
+import { useIncomes } from "./incomes";
 
 export function InspectDBSheet({
 	isOpen,
@@ -20,6 +21,7 @@ export function InspectDBSheet({
 	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
 	const { currentScenario, settings, scenarios } = useScenarioManager();
+	const { incomes } = useIncomes();
 
 	return (
 		<>
@@ -43,6 +45,11 @@ export function InspectDBSheet({
 						<JsonViewer
 							data={currentScenario}
 							rootName="currentScenario"
+							defaultExpanded={false}
+						/>
+						<JsonViewer
+							data={incomes}
+							rootName="incomes"
 							defaultExpanded={false}
 						/>
 					</div>

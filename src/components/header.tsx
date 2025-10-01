@@ -81,8 +81,7 @@ export function useScenarioManager() {
 }
 
 export function Header() {
-	const { currentScenario, deleteCurrentScenario, scenarios } =
-		useScenarioManager();
+	const { currentScenario, scenarios } = useScenarioManager();
 
 	const [open, setOpen] = useState(false);
 
@@ -104,7 +103,7 @@ export function Header() {
 		<>
 			<header className="border-b p-4 flex items-center justify-between">
 				<h1 className="text-lg font-bold flex items-center gap-2">
-					<BanknoteIcon className="text-primary" /> Cash Money
+					<BanknoteIcon className="text-primary size-8" /> Cash Money
 				</h1>
 
 				<div className="flex items-center gap-2">
@@ -195,8 +194,6 @@ export function Header() {
 				isOpen={showNewScenario}
 				setIsOpen={setShowNewScenario}
 			/>
-
-			<pre>{JSON.stringify(currentScenario, null, 2)}</pre>
 
 			{currentScenario && (
 				<EditScenarioModal

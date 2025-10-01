@@ -7,7 +7,7 @@ import {
 	calculateTotalAnnualPayments,
 	formatCurrency,
 } from "@/utils/fn";
-import { Incomes } from "@/components/incomes";
+import { Incomes, useIncomes } from "@/components/incomes";
 import { Expenses } from "@/components/expenses";
 import { Debts } from "@/components/debts";
 import { Assets } from "@/components/assets";
@@ -15,7 +15,7 @@ import { Header } from "./components/header";
 import { initSettings } from "./db/settings";
 
 function App() {
-	const [incomes, setIncomes] = useState<Income[]>([
+	const [incomes] = useState<Income[]>([
 		{
 			id: 1,
 			name: "Job",
@@ -57,6 +57,8 @@ function App() {
 		},
 	]);
 
+	const { totalAnnualIncome } = useIncomes();
+
 	useEffect(() => {
 		initSettings().catch((err) => {
 			console.error("Failed to init settings", err);
@@ -68,9 +70,7 @@ function App() {
 			<Header />
 
 			<div className="bg-grey-200 grid grid-cols-4 gap-4 mx-4">
-				<p>
-					Total Annual Income: {formatCurrency(calculateTotalAnnual(incomes))}
-				</p>
+				<p>Total Annual Income: {formatCurrency(totalAnnualIncome)}</p>
 
 				<p>
 					Total Annual Expenses:{" "}
@@ -110,7 +110,7 @@ function App() {
 			</div>
 
 			<div className="grid grid-cols-4 items-start gap-4 px-4">
-				<Incomes incomes={incomes} setIncomes={setIncomes} />
+				<Incomes />
 				<Expenses expenses={expenses} setExpenses={setExpenses} />
 				<Debts debts={debts} setDebts={setDebts} />
 				<Assets assets={assets} setAssets={setAssets} />
