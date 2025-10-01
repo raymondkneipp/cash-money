@@ -27,6 +27,9 @@ import {
 } from "@/components/ui/card";
 import { TooltipPopover } from "./components/ui/tooltip-popover";
 import { cn } from "./lib/utils";
+import { DTIChart } from "./components/dti-chart";
+import { ExpensesPieChart } from "./components/expenses-chart";
+import { NetWorthChart, useNetWorthProjection } from "./components/net-worth-chart";
 
 function Stat(props: {
 	icon: React.JSX.ElementType;
@@ -64,6 +67,7 @@ function App() {
 		dtiRatio,
 	} = useDebts();
 	const { totalAssets, totalAnnualContributions } = useAssets();
+	const { finalNetWorth } = useNetWorthProjection();
 
 	useEffect(() => {
 		initSettings().catch((err) => {
@@ -127,6 +131,13 @@ function App() {
 				/>
 
 				<Stat
+					title="Estimated Net Worth at 65"
+					icon={TrendingUpIcon}
+					value={formatCurrency(finalNetWorth)}
+					bg="bg-green-300 dark:bg-green-400/50"
+				/>
+
+				<Stat
 					title="Outstanding Debt"
 					icon={AlertCircleIcon}
 					value={formatCurrency(totalOutstanding)}
@@ -183,6 +194,10 @@ function App() {
 						)
 					}
 				/>
+
+				<DTIChart dtiRatio={dtiRatio} />
+				<ExpensesPieChart className="md:col-span-2" />
+				<NetWorthChart />
 			</div>
 
 			<div className="grid md:grid-cols-2 lg:grid-cols-4 items-start gap-4 px-4 pb-4">

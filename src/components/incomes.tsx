@@ -70,7 +70,7 @@ export function Incomes() {
 
 	return (
 		<Card className="divide-y">
-			<CardHeader className="pb-4">
+			<CardHeader className="pb-4 sticky top-0 bg-card z-10">
 				<CardTitle>Income</CardTitle>
 				<CardDescription>
 					Money you earn from work, investments, or other sources.

@@ -74,7 +74,7 @@ export function Assets() {
 
 	return (
 		<Card className="divide-y">
-			<CardHeader className="pb-4">
+			<CardHeader className="pb-4 sticky top-0 bg-card z-10">
 				<CardTitle>Assets</CardTitle>
 				<CardDescription>
 					Things you own that have value, like savings, investments, or

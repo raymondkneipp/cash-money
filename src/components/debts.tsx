@@ -96,7 +96,7 @@ export function Debts() {
 
 	return (
 		<Card className="divide-y">
-			<CardHeader className="pb-4">
+			<CardHeader className="pb-4 sticky top-0 bg-card z-10">
 				<CardTitle>Debts</CardTitle>
 				<CardDescription>
 					Money you owe, such as loans, credit cards, or mortgages.

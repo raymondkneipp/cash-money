@@ -72,7 +72,7 @@ export function Expenses() {
 
 	return (
 		<Card className="divide-y">
-			<CardHeader className="pb-4">
+			<CardHeader className="pb-4 sticky top-0 bg-card z-10">
 				<CardTitle>Expenses</CardTitle>
 				<CardDescription>
 					Your regular spending on living costs, bills, and other needs.
