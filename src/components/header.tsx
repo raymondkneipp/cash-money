@@ -29,6 +29,9 @@ import {
 	DropdownMenuContent,
 	DropdownMenuGroup,
 	DropdownMenuItem,
+	DropdownMenuLabel,
+	DropdownMenuRadioGroup,
+	DropdownMenuRadioItem,
 	DropdownMenuSeparator,
 	DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
@@ -39,6 +42,7 @@ import { CreateScenarioModal } from "./create-scenario-modal";
 import { EditScenarioModal } from "./edit-scenario-modal";
 import { DeleteScenarioAlert } from "./delete-scenario-alert";
 import { DuplicateScenarioModal } from "./duplicate-scenario-modal";
+import { useTheme, type Theme } from "./theme-provider";
 
 export function useScenarioManager() {
 	// Watch settings row
@@ -82,6 +86,7 @@ export function useScenarioManager() {
 }
 
 export function Header() {
+	const { theme, setTheme } = useTheme();
 	const { currentScenario, scenarios } = useScenarioManager();
 
 	const [open, setOpen] = useState(false);
@@ -187,6 +192,23 @@ export function Header() {
 									Inspect Data
 								</DropdownMenuItem>
 							</DropdownMenuGroup>
+
+							<DropdownMenuSeparator />
+
+							<DropdownMenuLabel>Theme</DropdownMenuLabel>
+
+							<DropdownMenuRadioGroup
+								value={theme}
+								onValueChange={(value) => setTheme(value as Theme)}
+							>
+								<DropdownMenuRadioItem value="light">
+									Light
+								</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="dark">Dark</DropdownMenuRadioItem>
+								<DropdownMenuRadioItem value="system">
+									System
+								</DropdownMenuRadioItem>
+							</DropdownMenuRadioGroup>
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</div>
