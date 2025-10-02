@@ -46,17 +46,19 @@ function Stat(props: {
 	bg: `bg-${string}-${number} dark:bg-${string}-${number}/50`;
 }) {
 	return (
-		<Card>
-			<CardHeader>
+		<Card className="p-2">
+			<CardHeader className="p-2 gap-0">
 				<div
 					className={cn(
-						"size-12 rounded-md flex items-center justify-center mb-2",
+						"size-10 rounded-md flex items-center justify-center mb-2",
 						props.bg,
 					)}
 				>
-					<props.icon />
+					<props.icon className="size-6" />
 				</div>
-				<CardTitle className="font-mono text-2xl">{props.value}</CardTitle>
+				<CardTitle className="font-mono text-lg sm:text-2xl">
+					{props.value}
+				</CardTitle>
 				<CardDescription>{props.title}</CardDescription>
 				{props.action && <CardAction>{props.action}</CardAction>}
 			</CardHeader>
@@ -96,7 +98,7 @@ function App() {
 						<TabsTrigger value="assets">Assets</TabsTrigger>
 					</TabsList>
 					<TabsContent value="dashboard">
-						<div className="bg-grey-200 grid sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-4 mx-4">
+						<div className="bg-grey-200 grid grid-cols-2 md:grid-cols-3 xl:grid-cols-5 gap-2 sm:gap-4 sm:mx-4">
 							<Stat
 								title="Annual Income"
 								icon={BanknoteArrowUpIcon}
@@ -148,7 +150,7 @@ function App() {
 							/>
 
 							<Stat
-								title="Estimated Net Worth at 65"
+								title="Net Worth at 65"
 								icon={TrendingUpIcon}
 								value={formatCurrency(finalNetWorth)}
 								bg="bg-green-300 dark:bg-green-400/50"
@@ -214,9 +216,9 @@ function App() {
 
 							<DTIChart
 								dtiRatio={dtiRatio}
-								className="sm:col-span-2 xl:col-span-1"
+								className="col-span-2 xl:col-span-1"
 							/>
-							<ExpensesPieChart className="sm:col-span-2 md:col-span-3 lg:col-span-1 xl:col-span-2" />
+							<ExpensesPieChart className="col-span-2 md:col-span-3 lg:col-span-1 xl:col-span-2" />
 							<NetWorthChart className="col-span-full md:col-span-3 lg:col-span-2 xl:col-span-2" />
 						</div>
 					</TabsContent>
