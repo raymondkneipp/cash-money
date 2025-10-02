@@ -26,6 +26,7 @@ export default defineConfig({
 				orientation: 'portrait',
 				scope: '/',
 				start_url: '/',
+				categories: ['finance', 'productivity', 'utilities'],
 				icons: [
 					{
 						src: 'web-app-manifest-192x192.png',

@@ -35,17 +35,24 @@ export function ThemeProvider({
 
 		root.classList.remove("light", "dark");
 
+		let currentTheme: "light" | "dark";
+
 		if (theme === "system") {
-			const systemTheme = window.matchMedia("(prefers-color-scheme: dark)")
+			currentTheme = window.matchMedia("(prefers-color-scheme: dark)")
 				.matches
 				? "dark"
 				: "light";
-
-			root.classList.add(systemTheme);
-			return;
+		} else {
+			currentTheme = theme;
 		}
 
-		root.classList.add(theme);
+		root.classList.add(currentTheme);
+
+		// Update meta theme color dynamically
+		const themeColorMeta = document.querySelector('meta[name="theme-color"]') as HTMLMetaElement;
+		if (themeColorMeta) {
+			themeColorMeta.content = currentTheme === "dark" ? "#000000" : "#f7f9f3";
+		}
 	}, [theme]);
 
 	const value = {
