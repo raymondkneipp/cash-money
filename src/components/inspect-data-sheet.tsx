@@ -10,11 +10,11 @@ import {
 } from "@/components/ui/sheet";
 import { Button } from "./ui/button";
 import { TrashIcon } from "lucide-react";
-import { useScenarioManager } from "./header";
-import { useIncomes } from "./incomes";
-import { useExpenses } from "./expenses";
-import { useDebts } from "./debts";
-import { useAssets } from "./assets";
+import { useScenario } from "@/hooks/use-scenario";
+import { useIncomes } from "@/hooks/use-incomes";
+import { useExpenses } from "@/hooks/use-expenses";
+import { useDebts } from "@/hooks/use-debts";
+import { useAssets } from "@/hooks/use-assets";
 
 export function InspectDataSheet({
 	isOpen,
@@ -23,7 +23,7 @@ export function InspectDataSheet({
 	isOpen: boolean;
 	setIsOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-	const { currentScenario, settings, scenarios } = useScenarioManager();
+	const { currentScenario, settings, scenarios } = useScenario();
 	const { incomes } = useIncomes();
 	const { expenses } = useExpenses();
 	const { debts } = useDebts();

@@ -1,4 +1,4 @@
-import { freqToPeriods, frequencyOptions } from "../utils/constants";
+import { frequencyOptions } from "../utils/constants";
 import type { Frequency } from "../utils/types";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -20,54 +20,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useScenarioManager } from "./header";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db, type Asset } from "@/db";
-
-export function useAssets() {
-	const { currentScenario } = useScenarioManager();
-
-	const assets = useLiveQuery(async () => {
-		if (!currentScenario?.id) return [];
-		return await db.assets.where({ scenarioId: currentScenario.id }).toArray();
-	}, [currentScenario?.id]);
-
-	async function add() {
-		if (!currentScenario) {
-			throw Error("No scenarioId");
-		}
-
-		await db.assets.add({
-			scenarioId: currentScenario.id,
-			name: "New Asset",
-			value: 1_000,
-			growthRate: 8,
-			contribution: 100,
-			frequency: "monthly",
-		});
-	}
-
-	async function drop(id: number) {
-		await db.assets.delete(id);
-	}
-
-	async function edit(
-		i: { id: number } & Partial<Omit<Asset, "id" | "scenarioId">>,
-	) {
-		const { id, ...rest } = i;
-		await db.assets.update(id, rest);
-	}
-
-	const totalAssets = assets?.reduce((sum, a) => sum + a.value, 0) ?? 0;
-
-	const totalAnnualContributions =
-		assets?.reduce(
-			(sum, a) => sum + a.contribution * (freqToPeriods[a.frequency] ?? 0),
-			0,
-		) ?? 0;
-
-	return { assets, add, drop, edit, totalAnnualContributions, totalAssets };
-}
+import { useAssets } from "@/hooks/use-assets";
 
 export function Assets() {
 	const { assets, add, drop, edit } = useAssets();

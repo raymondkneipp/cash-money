@@ -1,5 +1,5 @@
-import { freqToPeriods, frequencyOptions } from "../utils/constants";
-import type { Frequency, Income } from "../utils/types";
+import { frequencyOptions } from "../utils/constants";
+import type { Frequency } from "../utils/types";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import {
@@ -20,50 +20,7 @@ import {
 	CardHeader,
 	CardTitle,
 } from "@/components/ui/card";
-import { useLiveQuery } from "dexie-react-hooks";
-import { db } from "@/db";
-import { useScenarioManager } from "./header";
-
-export function useIncomes() {
-	const { currentScenario } = useScenarioManager();
-
-	const incomes = useLiveQuery(async () => {
-		if (!currentScenario?.id) return [];
-		return await db.incomes.where({ scenarioId: currentScenario.id }).toArray();
-	}, [currentScenario?.id]);
-
-	async function add() {
-		if (!currentScenario) {
-			throw Error("No scenarioId");
-		}
-
-		await db.incomes.add({
-			name: "New income",
-			amount: 1_000,
-			frequency: "monthly",
-			scenarioId: currentScenario.id,
-		});
-	}
-
-	async function drop(id: number) {
-		await db.incomes.delete(id);
-	}
-
-	async function edit(
-		i: { id: number } & Partial<Omit<Income, "id" | "scenarioId">>,
-	) {
-		const { id, ...rest } = i;
-		await db.incomes.update(id, rest);
-	}
-
-	const totalAnnualIncome =
-		incomes?.reduce((sum, income) => {
-			const periods = freqToPeriods[income.frequency] ?? 1;
-			return sum + income.amount * periods;
-		}, 0) ?? 0;
-
-	return { incomes, add, drop, edit, totalAnnualIncome };
-}
+import { useIncomes } from "@/hooks/use-incomes";
 
 export function Incomes() {
 	const { incomes, add, drop, edit } = useIncomes();

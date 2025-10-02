@@ -35,4 +35,3 @@ pnpm build
 
 - [ ] Export/import functionality
 - [ ] Real-time crypto and stock price integration
-- [ ] Breakout hooks into files

@@ -8,7 +8,7 @@ import {
 	AlertDialogHeader,
 	AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { useScenarioManager } from "./header";
+import { useScenario } from "@/hooks/use-scenario";
 
 export function DeleteScenarioAlert({
 	open,
@@ -17,7 +17,7 @@ export function DeleteScenarioAlert({
 	open: boolean;
 	onOpenChange: React.Dispatch<React.SetStateAction<boolean>>;
 }) {
-	const { currentScenario, deleteCurrentScenario } = useScenarioManager();
+	const { currentScenario, deleteCurrentScenario } = useScenario();
 
 	return (
 		<AlertDialog open={open} onOpenChange={onOpenChange}>

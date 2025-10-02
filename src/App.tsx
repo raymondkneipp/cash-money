@@ -1,9 +1,9 @@
 import { useEffect } from "react";
 import { formatCurrency } from "@/utils/fn";
-import { Incomes, useIncomes } from "@/components/incomes";
-import { Expenses, useExpenses } from "@/components/expenses";
-import { Debts, useDebts } from "@/components/debts";
-import { Assets, useAssets } from "@/components/assets";
+import { Incomes } from "@/components/incomes";
+import { Expenses } from "@/components/expenses";
+import { Debts } from "@/components/debts";
+import { Assets } from "@/components/assets";
 import { Header } from "./components/header";
 import { initSettings } from "./db/settings";
 import {
@@ -29,12 +29,14 @@ import { TooltipPopover } from "./components/ui/tooltip-popover";
 import { cn } from "./lib/utils";
 import { DTIChart } from "./components/dti-chart";
 import { ExpensesPieChart } from "./components/expenses-chart";
-import {
-	NetWorthChart,
-	useNetWorthProjection,
-} from "./components/net-worth-chart";
+import { NetWorthChart } from "./components/net-worth-chart";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ThemeProvider } from "./components/theme-provider";
+import { useIncomes } from "./hooks/use-incomes";
+import { useExpenses } from "./hooks/use-expenses";
+import { useDebts } from "./hooks/use-debts";
+import { useAssets } from "./hooks/use-assets";
+import { useNetWorthProjection } from "./hooks/use-net-worth-projection";
 
 function Stat(props: {
 	icon: React.JSX.ElementType;
