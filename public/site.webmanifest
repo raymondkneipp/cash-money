@@ -1,6 +1,7 @@
 {
   "name": "Cash Money",
   "short_name": "Cash Money",
+  "description": "Personal finance management app",
   "icons": [
     {
       "src": "/web-app-manifest-192x192.png",
@@ -17,5 +18,9 @@
   ],
   "theme_color": "#f7f9f3",
   "background_color": "#f7f9f3",
-  "display": "standalone"
+  "display": "standalone",
+  "orientation": "portrait",
+  "scope": "/",
+  "start_url": "/",
+  "categories": ["finance", "productivity", "utilities"]
 }
